@@ -1,6 +1,6 @@
-# Firebase Authentication Web App
+# Firebase TODO Web App
 
-This is a simple web application for user authentication using Firebase Authentication with email and password. The app is built using HTML, CSS, and JavaScript.
+This is a simple web application for TODO list using Firebase Authentication with email , password and firestore. The app is built using HTML, CSS, and JavaScript.
 
 ## Getting Started
 
