@@ -2,10 +2,13 @@ import { firebaseConfig } from "./config.js";
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
 const signoutBtn = document.querySelector("#signoutbtn");
 const inputBox = document.querySelector("#input_box");
+const dueDateInput = document.querySelector("#due_date");
 const listContainer = document.querySelector("#list-container");
 const addBtn = document.querySelector("#add");
+
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log("User is logged in:", user);
@@ -14,26 +17,32 @@ auth.onAuthStateChanged((user) => {
     console.log("User is not logged in.");
   }
 });
+
 addBtn.addEventListener("click", () => {
   console.log("Adding");
-  if (inputBox.value === "") {
-    alert("You must write something!");
+  if (inputBox.value === "" || dueDateInput.value === "") {
+    alert("You must write a task and select a due date!");
   } else {
     const taskText = inputBox.value.trim();
-    if (taskText) {
-      addTaskToFirestore(taskText);
+    const dueDate = dueDateInput.value;
+    if (taskText && dueDate) {
+      addTaskToFirestore(taskText, dueDate);
       inputBox.value = "";
+      dueDateInput.value = "";
     }
   }
 });
-function addTaskToFirestore(taskText) {
+
+function addTaskToFirestore(taskText, dueDate) {
   const user = auth.currentUser;
   if (user) {
     const userId = user.uid;
     const tasksRef = db.collection("users").doc(userId).collection("tasks");
+    const dueTimestamp = new Date(dueDate).getTime();
     tasksRef
       .add({
         text: taskText,
+        dueDate: firebase.firestore.Timestamp.fromMillis(dueTimestamp),
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       })
       .then(() => {
@@ -46,6 +55,7 @@ function addTaskToFirestore(taskText) {
     console.error("User is not logged in.");
   }
 }
+
 listContainer.addEventListener("click", function (e) {
   if (e.target.tagName === "LI") {
     e.target.classList.toggle("checked");
@@ -58,6 +68,7 @@ listContainer.addEventListener("click", function (e) {
     }
   }
 });
+
 function displayTasksInUL(user) {
   if (user) {
     const userId = user.uid;
@@ -70,8 +81,27 @@ function displayTasksInUL(user) {
         const li = document.createElement("li");
         li.textContent = taskData.text;
         li.setAttribute("data-task-id", doc.id);
+
+        if (taskData.dueDate) {
+          const dueDate = taskData.dueDate.toDate();
+          const timeRemaining = dueDate.getTime() - Date.now();
+
+          const dueSpan = document.createElement("span");
+          dueSpan.className = "time-ago";
+          dueSpan.textContent = `Due: ${dueDate.toLocaleString()}`;
+          li.appendChild(dueSpan);
+
+          const alertTime = timeRemaining - 10 * 60 * 1000;
+          if (alertTime > 0) {
+            setTimeout(() => {
+              alert(`⏰ Reminder: Task "${taskData.text}" is due in 10 minutes!`);
+            }, alertTime);
+          }
+        }
+
         const span = document.createElement("span");
         span.innerHTML = "\u00d7";
+        span.classList.add("delete-btn");
         li.appendChild(span);
         ul.appendChild(li);
       });
@@ -80,6 +110,7 @@ function displayTasksInUL(user) {
     console.error("User is not logged in.");
   }
 }
+
 signoutBtn.addEventListener("click", () => {
   auth
     .signOut()
@@ -91,6 +122,7 @@ signoutBtn.addEventListener("click", () => {
       alert("Error signing out: " + error.message);
     });
 });
+
 function removeTaskFromFirestore(taskId) {
   const user = auth.currentUser;
   if (user) {
