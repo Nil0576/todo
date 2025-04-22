@@ -69,24 +69,28 @@ function displayTasksInUL(user) {
       snapshot.forEach((doc) => {
         const taskData = doc.data();
         const li = document.createElement("li");
+
+        // Time calculations
         const createdAt = taskData.timestamp?.toDate();
         const now = new Date();
         let createdMsg = "Just now";
-
         if (createdAt) {
           const minsAgo = Math.floor((now - createdAt) / 60000);
           createdMsg = `Created ${minsAgo} min(s) ago`;
         }
 
+        // Render
         li.innerHTML = `
           <strong>${taskData.text}</strong><br>
           <small>${createdMsg}</small><br>
           <small>Due: ${taskData.dueDate?.toDate().toLocaleString()}</small>
         `;
         li.setAttribute("data-task-id", doc.id);
+
         const span = document.createElement("span");
         span.innerHTML = "\u00d7";
         li.appendChild(span);
+
         ul.appendChild(li);
       });
     });
@@ -124,7 +128,33 @@ function removeTaskFromFirestore(taskId) {
   }
 }
 
-// Reminder check every minute
+// Custom alert box
+function showAlertBox(taskText, minutesLeft) {
+  const alertDiv = document.createElement("div");
+  alertDiv.style.position = "fixed";
+  alertDiv.style.bottom = "20px";
+  alertDiv.style.right = "20px";
+  alertDiv.style.backgroundColor = "#ffc107";
+  alertDiv.style.padding = "15px";
+  alertDiv.style.borderRadius = "10px";
+  alertDiv.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+  alertDiv.style.zIndex = "9999";
+  alertDiv.style.color = "#000";
+  alertDiv.style.fontSize = "16px";
+  alertDiv.innerHTML = `
+    <strong>⏰ Task Reminder</strong><br>
+    ${taskText}<br>
+    <small>Due in ${minutesLeft} minute(s)</small>
+  `;
+
+  document.body.appendChild(alertDiv);
+
+  setTimeout(() => {
+    alertDiv.remove();
+  }, 10000); // Remove after 10 seconds
+}
+
+// Check upcoming tasks every minute
 function checkUpcomingTasks() {
   const user = auth.currentUser;
   if (!user) return;
@@ -140,13 +170,14 @@ function checkUpcomingTasks() {
       if (due) {
         const minutesLeft = (due - now) / 60000;
         if (minutesLeft > 0 && minutesLeft <= 10) {
-          alert(`⏰ Reminder: "${task.text}" is due in ${Math.ceil(minutesLeft)} minute(s)!`);
+          showAlertBox(task.text, Math.ceil(minutesLeft));
         }
       }
     });
   });
 }
 
+// Start reminder interval
 setInterval(checkUpcomingTasks, 60000);
 
 // Sign out
