@@ -6,6 +6,7 @@ const signoutBtn = document.querySelector("#signoutbtn");
 const inputBox = document.querySelector("#input_box");
 const listContainer = document.querySelector("#list-container");
 const addBtn = document.querySelector("#add");
+
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log("User is logged in:", user);
@@ -14,6 +15,7 @@ auth.onAuthStateChanged((user) => {
     console.log("User is not logged in.");
   }
 });
+
 addBtn.addEventListener("click", () => {
   console.log("Adding");
   if (inputBox.value === "") {
@@ -26,6 +28,7 @@ addBtn.addEventListener("click", () => {
     }
   }
 });
+
 function addTaskToFirestore(taskText) {
   const user = auth.currentUser;
   if (user) {
@@ -46,6 +49,7 @@ function addTaskToFirestore(taskText) {
     console.error("User is not logged in.");
   }
 }
+
 listContainer.addEventListener("click", function (e) {
   if (e.target.tagName === "LI") {
     e.target.classList.toggle("checked");
@@ -58,6 +62,7 @@ listContainer.addEventListener("click", function (e) {
     }
   }
 });
+
 function displayTasksInUL(user) {
   if (user) {
     const userId = user.uid;
@@ -69,10 +74,20 @@ function displayTasksInUL(user) {
         const taskData = doc.data();
         const li = document.createElement("li");
         li.textContent = taskData.text;
+
+        // Calculate time difference
+        const timestamp = taskData.timestamp.toDate();
+        const timeAgo = timeSince(timestamp);
+
+        const timeElement = document.createElement("span");
+        timeElement.textContent = timeAgo;
+        timeElement.classList.add("time-ago");
+
         li.setAttribute("data-task-id", doc.id);
         const span = document.createElement("span");
         span.innerHTML = "\u00d7";
         li.appendChild(span);
+        li.appendChild(timeElement);
         ul.appendChild(li);
       });
     });
@@ -80,6 +95,32 @@ function displayTasksInUL(user) {
     console.error("User is not logged in.");
   }
 }
+
+function timeSince(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  let interval = seconds / 31536000; // years
+  if (interval > 1) {
+    return Math.floor(interval) + " years ago";
+  }
+  interval = seconds / 2592000; // months
+  if (interval > 1) {
+    return Math.floor(interval) + " months ago";
+  }
+  interval = seconds / 86400; // days
+  if (interval > 1) {
+    return Math.floor(interval) + " days ago";
+  }
+  interval = seconds / 3600; // hours
+  if (interval > 1) {
+    return Math.floor(interval) + " hours ago";
+  }
+  interval = seconds / 60; // minutes
+  if (interval > 1) {
+    return Math.floor(interval) + " minutes ago";
+  }
+  return Math.floor(seconds) + " seconds ago";
+}
+
 signoutBtn.addEventListener("click", () => {
   auth
     .signOut()
@@ -91,6 +132,7 @@ signoutBtn.addEventListener("click", () => {
       alert("Error signing out: " + error.message);
     });
 });
+
 function removeTaskFromFirestore(taskId) {
   const user = auth.currentUser;
   if (user) {
