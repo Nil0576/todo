@@ -1,3 +1,4 @@
+/* Import Google font - Poppins */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 
 * {
@@ -10,7 +11,7 @@
 body {
   min-height: 100vh;
   width: 100%;
-  background: #222d32;
+  background: #ce5b29 !important; /* Change background color here */
 }
 
 .container {
@@ -20,15 +21,19 @@ body {
   transform: translate(-50%, -50%);
   max-width: 430px;
   width: 100%;
-  background: #fff;
-  border-radius: 7px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  padding: 20px;
 }
 
-.container .registration {
-  display: none;
+.container .form {
+  display: flex;
+  flex-direction: column;
 }
 
+.container .registration,
 .container .forgot {
   display: none;
 }
@@ -37,140 +42,86 @@ body {
   display: none;
 }
 
-.container .form {
-  padding: 2rem;
-}
-
-.form header {
+header {
   font-size: 2rem;
-  font-weight: 500;
+  font-weight: 600;
   text-align: center;
+  color: #ca0a0a;
   margin-bottom: 1.5rem;
 }
 
 .form input {
-  height: 50px;
+  height: 45px;
   width: 100%;
   padding: 0 15px;
-  font-size: 17px;
-  margin-bottom: 10px;
+  font-size: 16px;
+  margin-bottom: 15px;
   border: 1px solid #ddd;
   border-radius: 6px;
   outline: none;
+  transition: border-color 0.3s ease;
 }
 
 .form input:focus {
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  border-color: #009579;
 }
 
 .form input.button {
   color: #fff;
-  background: #009579;
+  background: linear-gradient(to right, #009579, #00b19d); /* Button background gradient */
   font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 1px;
   margin-top: 15px;
   cursor: pointer;
-  transition: 0.4s;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
 }
 
 .form input.button:hover {
-  background: #006653;
+  background: linear-gradient(to right, #006653, #008577);
 }
 
 .signup {
-  font-size: 17px;
+  font-size: 16px;
   text-align: center;
+  margin-top: 10px;
 }
 
 .signup a {
   color: #009579;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .signup a:hover {
   text-decoration: underline;
 }
 
-.container1 {
-  width: 100%;
-  min-height: 100vh;
-  background: #222d32;
-  padding: 10px;
+/* Design Improvements */
+.container .form input[type="text"],
+.container .form input[type="password"] {
+  border-radius: 10px; /* Rounded input fields */
 }
 
-.todo-app {
-  width: 100%;
-  max-width: 540px;
-  background: #fff;
-  margin: 100px auto 20px;
-  padding: 40px 30px 70px;
-  border-radius: 10px;
+.container .forgot form input {
+  border-color: #ccc;
 }
 
-.todo-app h2 {
-  color: #002765;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+    padding: 15px;
+  }
+  
+  header {
+    font-size: 1.8rem;
+  }
+  
+  .form input {
+    font-size: 15px;
+  }
 }
-
-.todo-app h2 img {
-  width: 30px;
-  margin-left: 10px;
-}
-
-.row1 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #edeef0;
-  border-radius: 30px;
-  padding-left: 20px;
-  margin-bottom: 25px;
-  width: 100%;
-}
-
-input {
-  outline: none;
-  border: none;
-  background: transparent;
-  padding: 10px;
-  font-weight: 14px;
-  width: 100%;
-}
-
-button {
-  border: none;
-  outline: none;
-  padding: 16px 50px;
-  background: #ff5945;
-  color: #ffff;
-  font-size: 16;
-  cursor: pointer;
-  border-radius: 40px;
-}
-
-ul li {
-  list-style: none;
-  font-size: 17px;
-  padding: 15px 8px 11px 50px;
-  user-select: none;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f9f9f9;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-ul li::before {
-  content: "";
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  border-radius: 50%;
-  background-image: url(images/unchecked.png);
-  background-size
