@@ -151,7 +151,7 @@ function showAlertBox(taskText, minutesLeft) {
 
   setTimeout(() => {
     alertDiv.remove();
-  }, 10000); // Remove after 10 seconds
+  }, 1000000); // Remove after 10 seconds
 }
 
 // Check upcoming tasks every minute
@@ -178,7 +178,7 @@ function checkUpcomingTasks() {
 }
 
 // Start reminder interval
-setInterval(checkUpcomingTasks, 60000);
+setInterval(checkUpcomingTasks, 6000);
 
 // Sign out
 signoutBtn.addEventListener("click", () => {
