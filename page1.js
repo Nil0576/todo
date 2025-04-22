@@ -1,160 +1,123 @@
-import { firebaseConfig } from "./config.js";
-const firebaseApp = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const signoutBtn = document.querySelector("#signoutbtn");
-const inputBox = document.querySelector("#input_box");
-const listContainer = document.querySelector("#list-container");
-const addBtn = document.querySelector("#add");
+// Firebase Config
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log("User is logged in:", user);
-    displayTasksInUL(user);
-  } else {
-    console.log("User is not logged in.");
-  }
-});
+// Firebase App Config (replace with your actual config)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-addBtn.addEventListener("click", () => {
-  console.log("Adding");
-  if (inputBox.value === "") {
-    alert("You must write something!");
-  } else {
-    const taskText = inputBox.value.trim();
-    if (taskText) {
-      addTaskToFirestore(taskText);
-      inputBox.value = "";
-    }
-  }
-});
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
 
-function addTaskToFirestore(taskText) {
-  const user = auth.currentUser;
-  if (user) {
-    const userId = user.uid;
-    const tasksRef = db.collection("users").doc(userId).collection("tasks");
-    tasksRef
-      .add({
-        text: taskText,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      })
-      .then(() => {
-        console.log("Task added to Firestore");
-      })
-      .catch((error) => {
-        console.error("Error adding task to Firestore:", error);
-      });
-  } else {
-    console.error("User is not logged in.");
-  }
+const inputBox = document.getElementById("input_box");
+const addButton = document.getElementById("add");
+const listContainer = document.getElementById("list-container");
+const signoutBtn = document.getElementById("signoutbtn");
+
+// Helper to format date
+function getDueTag(dueDate) {
+  const today = new Date();
+  const date = new Date(dueDate);
+  const diff = (date - today) / (1000 * 60 * 60 * 24);
+
+  if (Math.floor(diff) === 0) return "Today";
+  if (Math.floor(diff) === 1) return "Tomorrow";
+  return null;
 }
 
-listContainer.addEventListener("click", function (e) {
-  if (e.target.tagName === "LI") {
-    e.target.classList.toggle("checked");
-  } else if (e.target.tagName === "SPAN") {
-    const taskId = e.target.parentElement.getAttribute("data-task-id");
-    if (taskId) {
-      removeTaskFromFirestore(taskId);
-    } else {
-      console.error("TaskId is empty or undefined.");
-    }
-  }
-});
+// Add Task
+async function addTask(userId, taskText, dueDate) {
+  if (taskText === "") return alert("Please enter a task");
 
-function displayTasksInUL(user) {
-  if (user) {
-    const userId = user.uid;
-    const tasksRef = db.collection("users").doc(userId).collection("tasks");
-    tasksRef.onSnapshot((snapshot) => {
-      const ul = listContainer;
-      ul.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const taskData = doc.data();
-        const li = document.createElement("li");
-        li.textContent = taskData.text;
+  await addDoc(collection(db, "tasks"), {
+    userId: userId,
+    task: taskText,
+    dueDate: dueDate,
+    timestamp: new Date()
+  });
 
-        // Calculate time difference
-        const timestamp = taskData.timestamp.toDate();
-        const timeAgo = timeSince(timestamp);
+  inputBox.value = "";
+  loadTasks(userId);
+}
 
-        const timeElement = document.createElement("span");
-        timeElement.textContent = timeAgo;
-        timeElement.classList.add("time-ago");
+// Load Tasks
+async function loadTasks(userId) {
+  listContainer.innerHTML = "";
+  const q = query(collection(db, "tasks"), where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
 
-        li.setAttribute("data-task-id", doc.id);
-        const span = document.createElement("span");
-        span.innerHTML = "\u00d7";
-        li.appendChild(span);
-        li.appendChild(timeElement);
-        ul.appendChild(li);
-      });
+  querySnapshot.forEach((docSnap) => {
+    const task = docSnap.data();
+    const li = document.createElement("li");
+
+    // Highlight task if due today
+    const dueTag = getDueTag(task.dueDate);
+    if (dueTag === "Today") li.classList.add("highlight-today");
+
+    li.innerHTML = `
+      <span>${task.task}</span>
+      ${dueTag ? `<span class="due-tag">${dueTag}</span>` : ""}
+      <span class="delete-btn">&times;</span>
+    `;
+
+    // Delete task handler
+    li.querySelector(".delete-btn").addEventListener("click", async () => {
+      await deleteDoc(doc(db, "tasks", docSnap.id));
+      loadTasks(userId);
     });
-  } else {
-    console.error("User is not logged in.");
-  }
+
+    listContainer.appendChild(li);
+  });
 }
 
-function timeSince(date) {
-  const seconds = Math.floor((new Date() - date) / 1000);
-  let interval = seconds / 31536000; // years
-  if (interval > 1) {
-    return Math.floor(interval) + " years ago";
-  }
-  interval = seconds / 2592000; // months
-  if (interval > 1) {
-    return Math.floor(interval) + " months ago";
-  }
-  interval = seconds / 86400; // days
-  if (interval > 1) {
-    return Math.floor(interval) + " days ago";
-  }
-  interval = seconds / 3600; // hours
-  if (interval > 1) {
-    return Math.floor(interval) + " hours ago";
-  }
-  interval = seconds / 60; // minutes
-  if (interval > 1) {
-    return Math.floor(interval) + " minutes ago";
-  }
-  return Math.floor(seconds) + " seconds ago";
-}
-
-signoutBtn.addEventListener("click", () => {
-  auth
-    .signOut()
-    .then(() => {
-      console.log("User signed out successfully");
-      location.href = "index.html";
-    })
-    .catch((error) => {
-      alert("Error signing out: " + error.message);
-    });
-});
-
-function removeTaskFromFirestore(taskId) {
-  const user = auth.currentUser;
+// Check auth and initialize
+onAuthStateChanged(auth, (user) => {
   if (user) {
-    const userId = user.uid;
-    if (taskId) {
-      const taskRef = db
-        .collection("users")
-        .doc(userId)
-        .collection("tasks")
-        .doc(taskId);
-      taskRef
-        .delete()
+    const uid = user.uid;
+
+    // Load tasks for user
+    loadTasks(uid);
+
+    // Add task
+    addButton.addEventListener("click", () => {
+      const dueDate = prompt("Enter due date (YYYY-MM-DD):");
+      if (!dueDate) return alert("Task needs a due date!");
+      addTask(uid, inputBox.value, dueDate);
+    });
+
+    // Sign out
+    signoutBtn.addEventListener("click", () => {
+      signOut(auth)
         .then(() => {
-          console.log("Task removed from Firestore");
+          alert("Signed out successfully");
+          window.location.href = "index.html";
         })
         .catch((error) => {
-          console.error("Error removing task from Firestore:", error);
+          console.error("Sign out error", error);
         });
-    } else {
-      console.error("TaskId is empty or undefined.");
-    }
+    });
   } else {
-    console.error("User is not logged in.");
+    window.location.href = "index.html"; // redirect if not logged in
   }
-}
+});
