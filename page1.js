@@ -1,124 +1,118 @@
-// Firebase Config
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
-// Firebase App Config (replace with your actual config)
-const firebaseConfig = {
-  apiKey: "AIzaSyDW0kotXcUTyWf-XpvG4wDeEX-8euvCY3M",
-  authDomain: "to-do-e4fc2.firebaseapp.com",
-  projectId: "to-do-e4fc2",
-  storageBucket: "to-do-e4fc2.firebasestorage.app",
-  messagingSenderId: "613208522123",
-  appId: "1:613208522123:web:f6dd4b0b259cdb038b438e",
-  measurementId: "G-V6KP95H4PL"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
-
-const inputBox = document.getElementById("input_box");
-const addButton = document.getElementById("add");
-const listContainer = document.getElementById("list-container");
-const signoutBtn = document.getElementById("signoutbtn");
-
-// Helper to format date
-function getDueTag(dueDate) {
-  const today = new Date();
-  const date = new Date(dueDate);
-  const diff = (date - today) / (1000 * 60 * 60 * 24);
-
-  if (Math.floor(diff) === 0) return "Today";
-  if (Math.floor(diff) === 1) return "Tomorrow";
-  return null;
-}
-
-// Add Task
-async function addTask(userId, taskText, dueDate) {
-  if (taskText === "") return alert("Please enter a task");
-
-  await addDoc(collection(db, "tasks"), {
-    userId: userId,
-    task: taskText,
-    dueDate: dueDate,
-    timestamp: new Date()
-  });
-
-  inputBox.value = "";
-  loadTasks(userId);
-}
-
-// Load Tasks
-async function loadTasks(userId) {
-  listContainer.innerHTML = "";
-  const q = query(collection(db, "tasks"), where("userId", "==", userId));
-  const querySnapshot = await getDocs(q);
-
-  querySnapshot.forEach((docSnap) => {
-    const task = docSnap.data();
-    const li = document.createElement("li");
-
-    // Highlight task if due today
-    const dueTag = getDueTag(task.dueDate);
-    if (dueTag === "Today") li.classList.add("highlight-today");
-
-    li.innerHTML = `
-      <span>${task.task}</span>
-      ${dueTag ? `<span class="due-tag">${dueTag}</span>` : ""}
-      <span class="delete-btn">&times;</span>
-    `;
-
-    // Delete task handler
-    li.querySelector(".delete-btn").addEventListener("click", async () => {
-      await deleteDoc(doc(db, "tasks", docSnap.id));
-      loadTasks(userId);
-    });
-
-    listContainer.appendChild(li);
-  });
-}
-
-// Check auth and initialize
-onAuthStateChanged(auth, (user) => {
+import { firebaseConfig } from "./config.js";
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const signoutBtn = document.querySelector("#signoutbtn");
+const inputBox = document.querySelector("#input_box");
+const listContainer = document.querySelector("#list-container");
+const addBtn = document.querySelector("#add");
+auth.onAuthStateChanged((user) => {
   if (user) {
-    const uid = user.uid;
-
-    // Load tasks for user
-    loadTasks(uid);
-
-    // Add task
-    addButton.addEventListener("click", () => {
-      const dueDate = prompt("Enter due date (YYYY-MM-DD):");
-      if (!dueDate) return alert("Task needs a due date!");
-      addTask(uid, inputBox.value, dueDate);
-    });
-
-    // Sign out
-    signoutBtn.addEventListener("click", () => {
-      signOut(auth)
-        .then(() => {
-          alert("Signed out successfully");
-          window.location.href = "index.html";
-        })
-        .catch((error) => {
-          console.error("Sign out error", error);
-        });
-    });
+    console.log("User is logged in:", user);
+    displayTasksInUL(user);
   } else {
-    window.location.href = "index.html"; // redirect if not logged in
+    console.log("User is not logged in.");
   }
 });
+addBtn.addEventListener("click", () => {
+  console.log("Adding");
+  if (inputBox.value === "") {
+    alert("You must write something!");
+  } else {
+    const taskText = inputBox.value.trim();
+    if (taskText) {
+      addTaskToFirestore(taskText);
+      inputBox.value = "";
+    }
+  }
+});
+function addTaskToFirestore(taskText) {
+  const user = auth.currentUser;
+  if (user) {
+    const userId = user.uid;
+    const tasksRef = db.collection("users").doc(userId).collection("tasks");
+    tasksRef
+      .add({
+        text: taskText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then(() => {
+        console.log("Task added to Firestore");
+      })
+      .catch((error) => {
+        console.error("Error adding task to Firestore:", error);
+      });
+  } else {
+    console.error("User is not logged in.");
+  }
+}
+listContainer.addEventListener("click", function (e) {
+  if (e.target.tagName === "LI") {
+    e.target.classList.toggle("checked");
+  } else if (e.target.tagName === "SPAN") {
+    const taskId = e.target.parentElement.getAttribute("data-task-id");
+    if (taskId) {
+      removeTaskFromFirestore(taskId);
+    } else {
+      console.error("TaskId is empty or undefined.");
+    }
+  }
+});
+function displayTasksInUL(user) {
+  if (user) {
+    const userId = user.uid;
+    const tasksRef = db.collection("users").doc(userId).collection("tasks");
+    tasksRef.onSnapshot((snapshot) => {
+      const ul = listContainer;
+      ul.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const taskData = doc.data();
+        const li = document.createElement("li");
+        li.textContent = taskData.text;
+        li.setAttribute("data-task-id", doc.id);
+        const span = document.createElement("span");
+        span.innerHTML = "\u00d7";
+        li.appendChild(span);
+        ul.appendChild(li);
+      });
+    });
+  } else {
+    console.error("User is not logged in.");
+  }
+}
+signoutBtn.addEventListener("click", () => {
+  auth
+    .signOut()
+    .then(() => {
+      console.log("User signed out successfully");
+      location.href = "index.html";
+    })
+    .catch((error) => {
+      alert("Error signing out: " + error.message);
+    });
+});
+function removeTaskFromFirestore(taskId) {
+  const user = auth.currentUser;
+  if (user) {
+    const userId = user.uid;
+    if (taskId) {
+      const taskRef = db
+        .collection("users")
+        .doc(userId)
+        .collection("tasks")
+        .doc(taskId);
+      taskRef
+        .delete()
+        .then(() => {
+          console.log("Task removed from Firestore");
+        })
+        .catch((error) => {
+          console.error("Error removing task from Firestore:", error);
+        });
+    } else {
+      console.error("TaskId is empty or undefined.");
+    }
+  } else {
+    console.error("User is not logged in.");
+  }
+}
