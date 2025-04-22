@@ -180,6 +180,7 @@ ul li span:hover {
 .time-ago {
   font-size: 14px;
   color: #aaa;
+  margin-right: -100px
  
 }
 
