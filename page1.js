@@ -146,7 +146,7 @@ function showNotification(message) {
   setTimeout(() => {
     notif.style.opacity = "0";
     setTimeout(() => notif.remove(), 500);
-  }, 5000); // disappears after 5 seconds
+  }, 50000); // disappears after 5 seconds
 }
 
 // Reminder check every minute
