@@ -10,9 +10,107 @@
 
 body {
   min-height: 100vh;
+  width: 100%;
   background-color: #222d32;
 }
 
+/* ---------------- Login/Register Container ---------------- */
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 430px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  padding: 20px;
+}
+
+.container .form {
+  display: flex;
+  flex-direction: column;
+}
+
+.container .registration,
+.container .forgot {
+  display: none;
+}
+
+#check {
+  display: none;
+}
+
+header {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  color: #636363;
+  margin-bottom: 1.5rem;
+}
+
+.form input {
+  height: 45px;
+  width: 100%;
+  padding: 0 15px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.form input:focus {
+  border-color: #009579;
+}
+
+.form input.button {
+  color: #fff;
+  background: linear-gradient(to right, #009579, #00b19d);
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-top: 15px;
+  cursor: pointer;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.form input.button:hover {
+  background: linear-gradient(to right, #006653, #008577);
+}
+
+.signup {
+  font-size: 16px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.signup a {
+  color: #009579;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.signup a:hover {
+  text-decoration: underline;
+}
+
+.container .form input[type="text"],
+.container .form input[type="password"] {
+  border-radius: 10px;
+}
+
+.container .forgot form input {
+  border-color: #ccc;
+}
+
+/* ---------------- To-Do App Container ---------------- */
 .container1 {
   width: 100%;
   min-height: 100vh;
@@ -145,4 +243,56 @@ ul#list-container li span:hover {
   background: transparent;
   border: none;
   outline: none;
+}
+
+/* ---------------- Toast Notification ---------------- */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #009579;
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+    padding: 15px;
+  }
+
+  header {
+    font-size: 1.8rem;
+  }
+
+  .form input {
+    font-size: 15px;
+  }
+
+  .todo-app {
+    padding: 30px 20px 60px;
+    margin-top: 60px;
+  }
+
+  .row1 {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .row1 input,
+  .row1 button {
+    width: 100%;
+  }
 }
