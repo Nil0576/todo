@@ -14,6 +14,7 @@ auth.onAuthStateChanged((user) => {
     console.log("User is not logged in.");
   }
 });
+
 addBtn.addEventListener("click", () => {
   console.log("Adding");
   if (inputBox.value === "") {
