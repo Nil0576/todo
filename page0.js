@@ -1,153 +1,97 @@
-import { firebaseConfig } from "./config.js";
+// page0.js
+import {firebaseConfig} from './config.js';
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
-const signoutBtn = document.querySelector("#signoutbtn");
-const inputBox = document.querySelector("#input_box");
-const listContainer = document.querySelector("#list-container");
-const addBtn = document.querySelector("#add");
-
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    console.log("User is logged in:", user);
-    displayTasksInUL(user);
-  } else {
-    console.log("User is not logged in.");
-  }
-});
-
-addBtn.addEventListener("click", () => {
-  console.log("Adding");
-  if (inputBox.value === "") {
-    alert("You must write something!");
-  } else {
-    const taskText = inputBox.value.trim();
-    if (taskText) {
-      addTaskToFirestore(taskText);
-      inputBox.value = "";
+const firestore = firebase.firestore();
+const signupForm = document.querySelector('.registration.form');
+const loginForm = document.querySelector('.login.form');
+const forgotForm=document.querySelector('.forgot.form');
+const container=document.querySelector('.container');
+const signupBtn = document.querySelector('.signupbtn');
+const anchors = document.querySelectorAll('a');
+anchors.forEach(anchor => {
+  anchor.addEventListener('click', () => {
+    const id = anchor.id;
+    switch(id){
+    case 'loginLabel':
+        signupForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        forgotForm.style.display = 'none';
+        break;
+      case 'signupLabel':
+        signupForm.style.display = 'block';
+        loginForm.style.display = 'none';
+        forgotForm.style.display = 'none';
+        break;
+      case 'forgotLabel':
+        signupForm.style.display = 'none';
+        loginForm.style.display = 'none';
+        forgotForm.style.display = 'block';
+        break;
     }
-  }
+  });
 });
-
-function addTaskToFirestore(taskText) {
-  const user = auth.currentUser;
-  if (user) {
-    const userId = user.uid;
-    const tasksRef = db.collection("users").doc(userId).collection("tasks");
-    tasksRef
-      .add({
-        text: taskText,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      })
-      .then(() => {
-        console.log("Task added to Firestore");
-      })
-      .catch((error) => {
-        console.error("Error adding task to Firestore:", error);
-      });
-  } else {
-    console.error("User is not logged in.");
-  }
-}
-
-listContainer.addEventListener("click", function (e) {
-  if (e.target.tagName === "LI") {
-    e.target.classList.toggle("checked");
-  } else if (e.target.tagName === "SPAN") {
-    const taskId = e.target.parentElement.getAttribute("data-task-id");
-    if (taskId) {
-      removeTaskFromFirestore(taskId);
-    } else {
-      console.error("TaskId is empty or undefined.");
-    }
-  }
-});
-
-function getRelativeTime(timestamp) {
-  const now = new Date();
-  const createdTime = timestamp.toDate();
-  const secondsAgo = Math.floor((now - createdTime) / 1000);
-  if (secondsAgo < 60) return `${secondsAgo} sec ago`;
-  const minutesAgo = Math.floor(secondsAgo / 60);
-  if (minutesAgo < 60) return `${minutesAgo} min ago`;
-  const hoursAgo = Math.floor(minutesAgo / 60);
-  if (hoursAgo < 24) return `${hoursAgo} hr ago`;
-  const daysAgo = Math.floor(hoursAgo / 24);
-  return `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
-}
-
-function displayTasksInUL(user) {
-  if (user) {
-    const userId = user.uid;
-    const tasksRef = db.collection("users").doc(userId).collection("tasks");
-    tasksRef.orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-      const ul = listContainer;
-      ul.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const taskData = doc.data();
-        const li = document.createElement("li");
-        li.setAttribute("data-task-id", doc.id);
-
-        const taskText = document.createElement("span");
-        taskText.textContent = taskData.text;
-
-        const timestampSpan = document.createElement("span");
-        timestampSpan.style.fontSize = "0.8em";
-        timestampSpan.style.marginLeft = "10px";
-        timestampSpan.style.color = "gray";
-        timestampSpan.textContent = taskData.timestamp
-          ? getRelativeTime(taskData.timestamp)
-          : "just now";
-
-        const deleteSpan = document.createElement("span");
-        deleteSpan.innerHTML = "\u00d7";
-
-        li.appendChild(taskText);
-        li.appendChild(timestampSpan);
-        li.appendChild(deleteSpan);
-
-        ul.appendChild(li);
-      });
-    });
-  } else {
-    console.error("User is not logged in.");
-  }
-}
-
-signoutBtn.addEventListener("click", () => {
-  auth
-    .signOut()
-    .then(() => {
-      console.log("User signed out successfully");
-      location.href = "index.html";
-    })
-    .catch((error) => {
-      alert("Error signing out: " + error.message);
-    });
-});
-
-function removeTaskFromFirestore(taskId) {
-  const user = auth.currentUser;
-  if (user) {
-    const userId = user.uid;
-    if (taskId) {
-      const taskRef = db
-        .collection("users")
-        .doc(userId)
-        .collection("tasks")
-        .doc(taskId);
-      taskRef
-        .delete()
+signupBtn.addEventListener('click', () => {
+  const name = document.querySelector('#name').value;
+  const username = document.querySelector('#username').value;
+  const email = document.querySelector('#email').value.trim();
+  const password = document.querySelector('#password').value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      const uid = user.uid;
+        user.sendEmailVerification()
         .then(() => {
-          console.log("Task removed from Firestore");
+          alert('Verification email sent. Please check your inbox and verify your email before signing in.');
         })
         .catch((error) => {
-          console.error("Error removing task from Firestore:", error);
+          alert('Error sending verification email: ' + error.message);
         });
-    } else {
-      console.error("TaskId is empty or undefined.");
-    }
-  } else {
-    console.error("User is not logged in.");
+        console.log('User data saved to Firestore');
+        firestore.collection('users').doc(uid).set({
+          name: name,
+          username: username,
+          email: email,
+      });
+        signupForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        forgotForm.style.display = 'none';
+    })
+    .catch((error) => {
+      alert('Error signing up: '+error.message);
+    });
+});
+const loginBtn = document.querySelector('.loginbtn');
+loginBtn.addEventListener('click', () => {
+  const email = document.querySelector('#inUsr').value.trim();
+  const password = document.querySelector('#inPass').value;
+  auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      if (user.emailVerified) {
+        console.log('User is signed in with a verified email.');
+        location.href = "signout.html";
+      } else {
+        alert('Please verify your email before signing in.');
+      }
+    })
+    .catch((error) => {
+      alert('Error signing in: ' + error.message);
+    });
+});
+const forgotBtn=document.querySelector('.forgotbtn');
+forgotBtn.addEventListener('click', () => {
+  const emailForReset = document.querySelector('#forgotinp').value.trim();
+ if (emailForReset.length>0) {
+   auth.sendPasswordResetEmail(emailForReset)
+ .then(() => {
+   alert('Password reset email sent. Please check your inbox to reset your password.');
+        signupForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        forgotForm.style.display = 'none';
+    })
+    .catch((error) => {
+    alert('Error sending password reset email: ' + error.message);
+  });
   }
-}
+});
