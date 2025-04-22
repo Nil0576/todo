@@ -9,14 +9,24 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <title>Sign Out</title>
+    <style>
+      /* Optional inline styles for spacing the new input */
+      #due_date_input {
+        margin-left: 10px;
+        padding: 5px;
+      }
+    </style>
   </head>
   <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#">TODO</a>
       <div class="navbar-nav ml-auto">
         <a class="nav-item nav-link" href="#" id="signoutbtn">Sign Out</a>
       </div>
     </nav>
+
+    <!-- To-Do List App -->
     <div class="container1">
       <div class="todo-app">
         <h2>
@@ -24,22 +34,33 @@
           <img
             src="images/png-transparent-checkmark-done-exam-list-pencil-todo-xomo-basics-icon-thumbnail.png"
             width="100px"
-            alt=""
+            alt="Checklist"
           />
         </h2>
+
+        <!-- Task Input Row -->
         <div class="row1">
           <input type="text" placeholder="ADD HERE" id="input_box" />
+          <input type="datetime-local" id="due_date_input" />
           <button id="add">ADD</button>
         </div>
+
+        <!-- Task List -->
         <ul id="list-container"></ul>
       </div>
     </div>
+
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Bootstrap Dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Your App Script -->
     <script src="page1.js" type="module"></script>
   </body>
 </html>
