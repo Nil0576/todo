@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Login & Registration Form</title>
+  <title>Login & Task Scheduler</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
+    <!-- Login Form -->
     <input type="checkbox" id="check">
     <div class="login form">
       <header>Login</header>
@@ -26,6 +27,8 @@
         </span>
       </div>
     </div>
+
+    <!-- Registration Form -->
     <div class="registration form">
       <header>Signup</header>
       <form action="#">
@@ -41,7 +44,9 @@
         </span>
       </div>
     </div>
-    <div class="forgot form" >
+
+    <!-- Forgot Password Form -->
+    <div class="forgot form">
       <header>Forgot Password</header>
       <form action="#">
         <input type="text" id='forgotinp' placeholder="Enter your email">
@@ -58,10 +63,28 @@
         </span>
       </div>
     </div>
+
+    <!-- Task Scheduler Form (will be shown after login) -->
+    <div class="task-scheduler" id="task-scheduler" style="display: none;">
+      <h2>Task Scheduler</h2>
+      <div class="row1">
+        <input type="text" id="task-input" placeholder="Add a task">
+        <select id="task-schedule">
+          <option value="today">Today</option>
+          <option value="tomorrow">Tomorrow</option>
+          <option value="specific">Pick Date</option>
+        </select>
+        <input type="datetime-local" id="specific-date" style="display:none;">
+        <button id="add-task-btn">Add Task</button>
+      </div>
+      <ul id="task-list"></ul>
+    </div>
   </div>
+
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="page0.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="page0.js" type="module"></script>
 </body>
 </html>
