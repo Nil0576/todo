@@ -3,100 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Out</title>
-
-    <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css" />
-
-    <!-- Inline styles (optional) -->
+    <title>Sign Out</title>
     <style>
+      /* Optional inline styles for spacing the new input */
       #due_date_input {
         margin-left: 10px;
         padding: 5px;
       }
-
-      .container1 {
-        margin-top: 40px;
-        display: flex;
-        justify-content: center;
-      }
-
-      .todo-app {
-        background: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 600px;
-      }
-
-      .todo-app h2 {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .row1 {
-        display: flex;
-        margin-top: 20px;
-        gap: 10px;
-      }
-
-      #input_box {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-
-      #add {
-        padding: 8px 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-      }
-
-      #add:hover {
-        background-color: #0056b3;
-      }
-
-      #list-container {
-        margin-top: 20px;
-        list-style: none;
-        padding-left: 0;
-      }
-
-      #list-container li {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-        position: relative;
-      }
-
-      #list-container li span {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        cursor: pointer;
-        color: red;
-        font-weight: bold;
-      }
-
-      .checked {
-        text-decoration: line-through;
-        color: gray;
-      }
     </style>
   </head>
-
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -106,14 +26,14 @@
       </div>
     </nav>
 
-    <!-- To-Do App -->
+    <!-- To-Do List App -->
     <div class="container1">
       <div class="todo-app">
         <h2>
           To-Do List
           <img
             src="images/png-transparent-checkmark-done-exam-list-pencil-todo-xomo-basics-icon-thumbnail.png"
-            width="60"
+            width="100px"
             alt="Checklist"
           />
         </h2>
@@ -130,17 +50,17 @@
       </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- Bootstrap JS dependencies -->
+    <!-- Bootstrap Dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- App Script -->
-    <script type="module" src="page1.js"></script>
+    <!-- Your App Script -->
+    <script src="page1.js" type="module"></script>
   </body>
 </html>
