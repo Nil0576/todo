@@ -1,16 +1,21 @@
 /* Import Google font - Poppins */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
+
+/* Body styling */
 body {
   min-height: 100vh;
   width: 100%;
   background: #222d32;
 }
+
+/* Main container styling */
 .container {
   position: absolute;
   top: 50%;
@@ -22,24 +27,30 @@ body {
   border-radius: 7px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
 }
+
 .container .registration {
   display: none;
 }
+
 .container .forgot {
   display: none;
 }
+
 #check {
   display: none;
 }
+
 .container .form {
   padding: 2rem;
 }
+
 .form header {
   font-size: 2rem;
   font-weight: 500;
   text-align: center;
   margin-bottom: 1.5rem;
 }
+
 .form input {
   height: 50px;
   width: 100%;
@@ -50,9 +61,11 @@ body {
   border-radius: 6px;
   outline: none;
 }
+
 .form input:focus {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
+
 .form input.button {
   color: #fff;
   background: #009579;
@@ -63,26 +76,33 @@ body {
   cursor: pointer;
   transition: 0.4s;
 }
+
 .form input.button:hover {
   background: #006653;
 }
+
 .signup {
   font-size: 17px;
   text-align: center;
 }
+
 .signup a {
   color: #009579;
   cursor: pointer;
 }
+
 .signup a:hover {
   text-decoration: underline;
 }
+
+/* Todo App Styling */
 .container1 {
   width: 100%;
   min-height: 100vh;
   background: #222d32;
   padding: 10px;
 }
+
 .todo-app {
   width: 100%;
   max-width: 540px;
@@ -104,6 +124,7 @@ body {
   margin-left: 10px;
 }
 
+/* Input row style */
 .row1 {
   display: flex;
   align-items: center;
@@ -124,6 +145,7 @@ input {
   width: 100%;
 }
 
+/* Add task button styling */
 button {
   border: none;
   outline: none;
@@ -134,6 +156,7 @@ button {
   cursor: pointer;
   border-radius: 40px;
 }
+
 ul li {
   list-style: none;
   font-size: 17px;
@@ -141,7 +164,15 @@ ul li {
   user-select: none;
   cursor: pointer;
   position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  border-radius: 5px;
+  margin-bottom: 10px;
 }
+
+/* Task Checkbox */
 ul li::before {
   content: "";
   position: absolute;
@@ -154,28 +185,77 @@ ul li::before {
   top: 12px;
   left: 8px;
 }
+
 ul li.checked::before {
   background-image: url(images/checked.png);
 }
+
+/* Task Text Styling */
 ul li span {
-  position: absolute;
-  right: 0;
-  top: 5px;
-  width: 40px;
-  height: 40px;
-  font-size: 22px;
-  color: #555;
-  line-height: 40px;
-  text-align: center;
-  border-radius: 50%;
+  flex-grow: 1;
+  font-size: 17px;
+  color: #333;
+  padding-left: 10px;
 }
 
+/* Cross button for deleting tasks */
+ul li span.delete-btn {
+  cursor: pointer;
+  color: #ff6666;
+  font-size: 20px;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+/* Time-ago Styling */
+ul li .time-ago {
+  font-size: 12px;
+  color: #aaa;
+  margin-left: auto;
+  white-space: nowrap; /* Prevents time text from wrapping */
+  padding-left: 10px;
+}
+
+/* Time hover effect */
 ul li span:hover {
   background: #edeef0;
 }
+
+/* Completed Task Styling */
 .checked {
   text-decoration: line-through;
+  color: #888;
 }
 
+.checked span {
+  color: #888;
+}
 
+/* Optional: Style the input field for task addition */
+#task-input-container {
+  display: flex;
+  margin-top: 20px;
+}
 
+#task-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+#add-task-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#add-task-btn:hover {
+  background-color: #218838;
+}
