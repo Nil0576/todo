@@ -124,6 +124,31 @@ function removeTaskFromFirestore(taskId) {
   }
 }
 
+// Custom toast-style notification
+function showNotification(message) {
+  const notif = document.createElement("div");
+  notif.textContent = message;
+  notif.style.position = "fixed";
+  notif.style.bottom = "20px";
+  notif.style.right = "20px";
+  notif.style.background = "#28a745";
+  notif.style.color = "#fff";
+  notif.style.padding = "15px 20px";
+  notif.style.borderRadius = "5px";
+  notif.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+  notif.style.zIndex = "9999";
+  notif.style.fontSize = "16px";
+  notif.style.transition = "opacity 0.5s ease";
+  notif.style.opacity = "1";
+
+  document.body.appendChild(notif);
+
+  setTimeout(() => {
+    notif.style.opacity = "0";
+    setTimeout(() => notif.remove(), 500);
+  }, 5000); // disappears after 5 seconds
+}
+
 // Reminder check every minute
 function checkUpcomingTasks() {
   const user = auth.currentUser;
@@ -140,14 +165,14 @@ function checkUpcomingTasks() {
       if (due) {
         const minutesLeft = (due - now) / 60000;
         if (minutesLeft > 0 && minutesLeft <= 10) {
-          alert(`⏰ Reminder: "${task.text}" is due in ${Math.ceil(minutesLeft)} minute(s)!`);
+          showNotification(`⏰ "${task.text}" is due in ${Math.ceil(minutesLeft)} minute(s)!`);
         }
       }
     });
   });
 }
 
-setInterval(checkUpcomingTasks, 60000);
+setInterval(checkUpcomingTasks, 60000); // Every minute
 
 // Sign out
 signoutBtn.addEventListener("click", () => {
