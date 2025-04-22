@@ -116,4 +116,3 @@ function removeTaskFromFirestore(taskId) {
     console.error("User is not logged in.");
   }
 }
-
