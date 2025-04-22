@@ -1,3 +1,4 @@
+// page1.js
 import { firebaseConfig } from "./config.js";
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -14,9 +15,7 @@ auth.onAuthStateChanged((user) => {
     console.log("User is not logged in.");
   }
 });
-
 addBtn.addEventListener("click", () => {
-  console.log("Adding");
   if (inputBox.value === "") {
     alert("You must write something!");
   } else {
@@ -62,14 +61,15 @@ listContainer.addEventListener("click", function (e) {
 function displayTasksInUL(user) {
   if (user) {
     const userId = user.uid;
-    const tasksRef = db.collection("users").doc(userId).collection("tasks");
+    const tasksRef = db.collection("users").doc(userId).collection("tasks").orderBy("timestamp", "desc");
     tasksRef.onSnapshot((snapshot) => {
       const ul = listContainer;
       ul.innerHTML = "";
       snapshot.forEach((doc) => {
         const taskData = doc.data();
         const li = document.createElement("li");
-        li.textContent = taskData.text;
+        const date = taskData.timestamp?.toDate().toLocaleString() || "No timestamp";
+        li.textContent = `${taskData.text} (Created: ${date})`;
         li.setAttribute("data-task-id", doc.id);
         const span = document.createElement("span");
         span.innerHTML = "\u00d7";
