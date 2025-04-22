@@ -30,6 +30,7 @@ anchors.forEach(anchor => {
     }
   });
 });
+
 signupBtn.addEventListener('click', () => {
   const name = document.querySelector('#name').value;
   const username = document.querySelector('#username').value;
