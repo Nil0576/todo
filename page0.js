@@ -1,4 +1,3 @@
-// page0.js
 import {firebaseConfig} from './config.js';
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -52,7 +51,7 @@ signupBtn.addEventListener('click', () => {
           name: name,
           username: username,
           email: email,
-      });
+      })
         signupForm.style.display = 'none';
         loginForm.style.display = 'block';
         forgotForm.style.display = 'none';
