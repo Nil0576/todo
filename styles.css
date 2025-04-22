@@ -176,3 +176,10 @@ ul li span:hover {
 .checked {
   text-decoration: line-through;
 }
+
+.time-ago {
+  font-size: 14px;
+  color: #aaa;
+  margin-left: 10px;
+}
+
