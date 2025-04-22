@@ -1,3 +1,4 @@
+// page0.js
 import {firebaseConfig} from './config.js';
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -30,7 +31,6 @@ anchors.forEach(anchor => {
     }
   });
 });
-
 signupBtn.addEventListener('click', () => {
   const name = document.querySelector('#name').value;
   const username = document.querySelector('#username').value;
@@ -52,7 +52,7 @@ signupBtn.addEventListener('click', () => {
           name: name,
           username: username,
           email: email,
-      })
+      });
         signupForm.style.display = 'none';
         loginForm.style.display = 'block';
         forgotForm.style.display = 'none';
