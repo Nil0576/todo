@@ -178,7 +178,7 @@ function checkUpcomingTasks() {
 }
 
 // Start reminder interval
-setInterval(checkUpcomingTasks, 6000);
+setInterval(checkUpcomingTasks, 60);
 
 // Sign out
 signoutBtn.addEventListener("click", () => {
