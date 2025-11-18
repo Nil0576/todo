@@ -1,6 +1,13 @@
-// Import config and initialize Firebase
 import { firebaseConfig } from "./config.js";
-const firebaseApp = firebase.initializeApp(firebaseConfig);
+
+// --- FIX 1: Safe Initialization ---
+// Check if Firebase is already running before starting it to prevent crashes.
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app(); 
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -14,10 +21,12 @@ const addBtn = document.querySelector("#add");
 // Auth state
 auth.onAuthStateChanged((user) => {
   if (user) {
-    console.log("User is logged in:", user);
+    console.log("User is logged in:", user.uid);
     displayTasksInUL(user);
   } else {
     console.log("User is not logged in.");
+    // Optional: Redirect back to login if not logged in
+    // location.href = "index.html";
   }
 });
 
@@ -31,7 +40,8 @@ addBtn.addEventListener("click", () => {
     if (taskText) {
       addTaskToFirestore(taskText, dueDate);
       inputBox.value = "";
-      dueDateInput.value = "";
+      // Keep the date picker populated or clear it? Clearing it:
+      dueDateInput.value = ""; 
     }
   }
 });
@@ -51,48 +61,61 @@ function addTaskToFirestore(taskText, dueDate) {
         console.log("Task added to Firestore");
       })
       .catch((error) => {
-        console.error("Error adding task to Firestore:", error);
+        alert("Error adding task: " + error.message);
       });
   } else {
-    console.error("User is not logged in.");
+    alert("You must be logged in to add tasks.");
   }
 }
 
 // Display tasks
 function displayTasksInUL(user) {
-  if (user) {
-    const userId = user.uid;
-    const tasksRef = db.collection("users").doc(userId).collection("tasks");
-    tasksRef.onSnapshot((snapshot) => {
-      const ul = listContainer;
-      ul.innerHTML = "";
-      snapshot.forEach((doc) => {
-        const taskData = doc.data();
-        const li = document.createElement("li");
-        const createdAt = taskData.timestamp?.toDate();
-        const now = new Date();
-        let createdMsg = "Just now";
+  const userId = user.uid;
+  const tasksRef = db.collection("users").doc(userId).collection("tasks");
+  
+  // Order by due date so the list looks organized
+  tasksRef.orderBy("dueDate", "asc").onSnapshot((snapshot) => {
+    const ul = listContainer;
+    ul.innerHTML = "";
+    
+    if(snapshot.empty) {
+        console.log("No tasks found in database for this user.");
+    }
 
-        if (createdAt) {
-          const minsAgo = Math.floor((now - createdAt) / 60000);
-          createdMsg = `Created ${minsAgo} min(s) ago`;
-        }
+    snapshot.forEach((doc) => {
+      const taskData = doc.data();
+      const li = document.createElement("li");
+      const createdAt = taskData.timestamp?.toDate();
+      const now = new Date();
+      let createdMsg = "Just now";
 
-        li.innerHTML = `
-          <strong>${taskData.text}</strong><br>
-          <small>${createdMsg}</small><br>
-          <small>Due: ${taskData.dueDate?.toDate().toLocaleString()}</small>
-        `;
-        li.setAttribute("data-task-id", doc.id);
-        const span = document.createElement("span");
-        span.innerHTML = "\u00d7";
-        li.appendChild(span);
-        ul.appendChild(li);
-      });
+      if (createdAt) {
+        const minsAgo = Math.floor((now - createdAt) / 60000);
+        createdMsg = `Created ${minsAgo} min(s) ago`;
+      }
+
+      // Handle date formatting safely
+      let dueString = "";
+      if(taskData.dueDate) {
+          dueString = taskData.dueDate.toDate().toLocaleString();
+      }
+
+      li.innerHTML = `
+        <strong>${taskData.text}</strong><br>
+        <small>${createdMsg}</small><br>
+        <small>Due: ${dueString}</small>
+      `;
+      li.setAttribute("data-task-id", doc.id);
+      const span = document.createElement("span");
+      span.innerHTML = "\u00d7";
+      li.appendChild(span);
+      ul.appendChild(li);
     });
-  } else {
-    console.error("User is not logged in.");
-  }
+  }, (error) => {
+      // This will catch Permission errors or Quota errors
+      console.error("Error loading tasks:", error);
+      alert("Error loading list: " + error.message);
+  });
 }
 
 // Delete task
@@ -103,8 +126,6 @@ listContainer.addEventListener("click", function (e) {
     const taskId = e.target.parentElement.getAttribute("data-task-id");
     if (taskId) {
       removeTaskFromFirestore(taskId);
-    } else {
-      console.error("TaskId is empty or undefined.");
     }
   }
 });
@@ -113,21 +134,16 @@ function removeTaskFromFirestore(taskId) {
   const user = auth.currentUser;
   if (user) {
     const userId = user.uid;
-    const taskRef = db.collection("users").doc(userId).collection("tasks").doc(taskId);
-    taskRef.delete()
-      .then(() => {
-        console.log("Task removed from Firestore");
-      })
-      .catch((error) => {
-        console.error("Error removing task from Firestore:", error);
-      });
+    db.collection("users").doc(userId).collection("tasks").doc(taskId).delete()
+      .then(() => console.log("Task removed"))
+      .catch((error) => console.error("Error removing task:", error));
   }
 }
 
-// Custom toast-style notification
 function showNotification(message) {
   const notif = document.createElement("div");
   notif.textContent = message;
+  // ... (Styling is handled in CSS mostly, keeping your inline styles here)
   notif.style.position = "fixed";
   notif.style.bottom = "20px";
   notif.style.right = "20px";
@@ -137,28 +153,22 @@ function showNotification(message) {
   notif.style.borderRadius = "5px";
   notif.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
   notif.style.zIndex = "9999";
-  notif.style.fontSize = "16px";
-  notif.style.transition = "opacity 0.5s ease";
-  notif.style.opacity = "1";
-
   document.body.appendChild(notif);
 
   setTimeout(() => {
     notif.style.opacity = "0";
     setTimeout(() => notif.remove(), 500);
-  }, 50000); // disappears after 5 seconds
+  }, 5000); // changed 50000 to 5000 (5 seconds)
 }
 
-// Reminder check every minute
 function checkUpcomingTasks() {
   const user = auth.currentUser;
   if (!user) return;
-
+  
   const userId = user.uid;
   const now = new Date();
-  const tasksRef = db.collection("users").doc(userId).collection("tasks");
-
-  tasksRef.get().then(snapshot => {
+  
+  db.collection("users").doc(userId).collection("tasks").get().then(snapshot => {
     snapshot.forEach(doc => {
       const task = doc.data();
       const due = task.dueDate?.toDate();
@@ -172,13 +182,14 @@ function checkUpcomingTasks() {
   });
 }
 
-setInterval(checkUpcomingTasks, 60000); // Every minute
+// --- FIX 2: The Timer ---
+// Changed 60 (milliseconds) to 60000 (1 minute)
+setInterval(checkUpcomingTasks, 60000); 
 
 // Sign out
 signoutBtn.addEventListener("click", () => {
   auth.signOut()
     .then(() => {
-      console.log("User signed out successfully");
       location.href = "index.html";
     })
     .catch((error) => {
