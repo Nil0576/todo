@@ -172,7 +172,7 @@ function checkUpcomingTasks() {
   });
 }
 
-setInterval(checkUpcomingTasks, 60); // Every minute
+setInterval(checkUpcomingTasks, 60000); // Every minute
 
 // Sign out
 signoutBtn.addEventListener("click", () => {
